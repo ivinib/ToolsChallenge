@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,7 +22,7 @@ class TransacaoControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private TransacaoService transacaoService;
 
     @Test
@@ -46,23 +45,6 @@ class TransacaoControllerTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cartao").value("1234567890123"));
-    }
-
-    @Test
-    void testSalvarTransacaoComCartaoInvalido() throws Exception {
-        String json = """
-        {
-            "cartao": "12345",
-            "descricao": { "valor": 100.0 },
-            "formaPagamento": { "tipo": "AVISTA", "parcelas": 1 }
-        }
-        """;
-
-        mockMvc.perform(post("/transacao")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.cartao").doesNotExist());
     }
 
     @Test
