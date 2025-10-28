@@ -1,14 +1,12 @@
 package org.example.toolschallenge.toolschallenge.service;
 
 import jakarta.validation.Valid;
-import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
 import org.example.toolschallenge.toolschallenge.repository.TransacaoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +22,6 @@ public class TransacaoService {
     }
 
     public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
-
         try{
             Transacao transacaoSalva = transacaoRepository.save(transacao);
             log.info("transacao salva com sucesso");
@@ -33,14 +30,6 @@ public class TransacaoService {
             log.error("Ocorreu um erro ao tentar salvar a transacao. Erro:" + e.getMessage());
             throw new RuntimeException(e);
         }
-    }
-
-    private void validaTransacao(Transacao transacao) {
-
-    }
-
-    private void validaFormaPagamento(FormaPagamento formaPagamento) {
-
     }
 
     public ResponseEntity<List<Transacao>> listarTodasTransacoes() {
