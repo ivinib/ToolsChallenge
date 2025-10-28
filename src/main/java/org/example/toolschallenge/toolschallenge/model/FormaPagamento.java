@@ -14,7 +14,7 @@ public class FormaPagamento {
     private String tipo;
 
     @Column(name = "parcelas")
-    private int parcelas;
+    private String parcelas;
 
     public Long getIdPagamento() {
         return idPagamento;
@@ -32,11 +32,11 @@ public class FormaPagamento {
         this.tipo = tipo;
     }
 
-    public int getParcelas() {
+    public String getParcelas() {
         return parcelas;
     }
 
-    public void setParcelas(int parcelas) {
+    public void setParcelas(String parcelas) {
         this.parcelas = parcelas;
     }
 }
