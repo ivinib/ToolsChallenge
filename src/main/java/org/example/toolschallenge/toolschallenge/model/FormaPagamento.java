@@ -1,7 +1,42 @@
 package org.example.toolschallenge.toolschallenge.model;
 
+import jakarta.persistence.*;
+
+@Entity(name = "tb_forma_pagamento")
 public class FormaPagamento {
-    private long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_forma_pagamento")
+    private Long idPagamento;
+
+    @Column(name = "tipo")
     private String tipo;
+
+    @Column(name = "parcelas")
     private int parcelas;
+
+    public Long getIdPagamento() {
+        return idPagamento;
+    }
+
+    public void setIdPagamento(Long idPagamento) {
+        this.idPagamento = idPagamento;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public int getParcelas() {
+        return parcelas;
+    }
+
+    public void setParcelas(int parcelas) {
+        this.parcelas = parcelas;
+    }
 }

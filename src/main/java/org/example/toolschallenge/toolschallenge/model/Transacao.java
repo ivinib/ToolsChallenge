@@ -1,33 +1,64 @@
 package org.example.toolschallenge.toolschallenge.model;
 
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import org.example.toolschallenge.toolschallenge.util.FormaPagamentoValida;
+import org.hibernate.validator.constraints.Length;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
 @Entity(name = "tb_transacao")
 public class Transacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "id_transacao")
+    private Long idTransacao;
 
-    private long cartao;
+    @Column(name = "cartao")
+    @Size(min = 13, max = 19, message = "Cartão deve conter entre 13 e 19 digitos")
+    @Pattern(regexp = "\\d+", message = "Cartão deve conter apenas números")
+    private String cartao;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_descricao", referencedColumnName = "id_descricao")
     private Descricao descricao;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_forma_pagamento", referencedColumnName = "id_forma_pagamento")
+    @FormaPagamentoValida
     private FormaPagamento formaPagamento;
 
+    public Long getIdTransacao() {
+        return idTransacao;
+    }
+
+    public void setIdTransacao(Long idTransacao) {
+        this.idTransacao = idTransacao;
+    }
+
+    public String getCartao() {
+        return cartao;
+    }
+
+    public void setCartao(String cartao) {
+        this.cartao = cartao;
+    }
+
+    public Descricao getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(Descricao descricao) {
+        this.descricao = descricao;
+    }
+
+    public FormaPagamento getFormaPagamento() {
+        return formaPagamento;
+    }
+
+    public void setFormaPagamento(FormaPagamento formaPagamento) {
+        this.formaPagamento = formaPagamento;
+    }
 }
