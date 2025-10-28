@@ -1,5 +1,6 @@
 package org.example.toolschallenge.toolschallenge.controller;
 
+import jakarta.validation.Valid;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
 import org.example.toolschallenge.toolschallenge.service.TransacaoService;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class TransacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Transacao> salvaTransacao(@RequestBody Transacao transacao) {
+    public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
         return transacaoService.salvaTransacao(transacao);
     }
 
@@ -40,7 +41,7 @@ public class TransacaoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transacao> atualizaTransacao(@PathVariable Long id, @RequestBody Transacao transacaoAtualizada) {
+    public ResponseEntity<Transacao> atualizaTransacao(@PathVariable Long id, @Valid @RequestBody Transacao transacaoAtualizada) {
         return transacaoService.atualizaTransacao(id, transacaoAtualizada);
     }
 

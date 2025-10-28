@@ -64,7 +64,7 @@ public class TransacaoService {
         }
     }
 
-    public ResponseEntity<Transacao> atualizaTransacao(@PathVariable Long id, @RequestBody Transacao transacaoAtualizada) {
+    public ResponseEntity<Transacao> atualizaTransacao(@PathVariable Long id, @Valid @RequestBody Transacao transacaoAtualizada) {
         try{
             log.info("Buscando transacao para ser atualizada");
             Transacao transacao = transacaoRepository.findById(id).orElse(null);
