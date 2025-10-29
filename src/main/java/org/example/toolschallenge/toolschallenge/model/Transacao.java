@@ -1,12 +1,9 @@
 package org.example.toolschallenge.toolschallenge.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.toolschallenge.toolschallenge.util.FormaPagamentoValida;
-import org.hibernate.validator.constraints.Length;
 
 @Entity(name = "tb_transacao")
 public class Transacao {
@@ -18,7 +15,7 @@ public class Transacao {
 
     @Column(name = "cartao")
     @Size(min = 13, max = 19, message = "Cartão deve conter entre 13 e 19 digitos")
-    @Pattern(regexp = "\\d+", message = "Cartão deve conter apenas números")
+    @NotNull(message = "O número do cartão deve ser preenchido")
     private String cartao;
 
     @OneToOne(cascade = CascadeType.ALL)

@@ -45,6 +45,11 @@ public class TransacaoController {
         return transacaoService.atualizaTransacao(id, transacaoAtualizada);
     }
 
+    @PutMapping("/estorno/{id}")
+    public ResponseEntity<Transacao> processaEstorno(@PathVariable Long id) {
+        return transacaoService.processaEstorno(id);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransacao(@PathVariable Long id) {
         try{

@@ -1,8 +1,11 @@
 package org.example.toolschallenge.toolschallenge.service;
 
 import jakarta.validation.Valid;
+import org.example.toolschallenge.toolschallenge.model.Descricao;
+import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
 import org.example.toolschallenge.toolschallenge.repository.TransacaoRepository;
+import org.example.toolschallenge.toolschallenge.util.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class TransacaoService {
@@ -21,7 +25,9 @@ public class TransacaoService {
         this.transacaoRepository = transacaoRepository;
     }
 
-    public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
+    public ResponseEntity<Transacao> salvaTransacao( @RequestBody Transacao transacao) {
+
+        processaPagamento(transacao);
         try{
             Transacao transacaoSalva = transacaoRepository.save(transacao);
             log.info("transacao salva com sucesso");
@@ -71,9 +77,10 @@ public class TransacaoService {
             if (transacao == null) {
                 return ResponseEntity.notFound().build();
             }
-            transacao.setCartao(transacaoAtualizada.getCartao());
-            transacao.setDescricao(transacaoAtualizada.getDescricao());
-            transacao.setFormaPagamento(transacaoAtualizada.getFormaPagamento());
+            atualizaDescricao(transacao.getDescricao(), transacaoAtualizada.getDescricao());
+            atualizaFormaPagamento(transacao.getFormaPagamento(), transacaoAtualizada.getFormaPagamento());
+
+            transacao.setCartao(mascaraNumeroCartao(transacaoAtualizada.getCartao()));
             transacaoRepository.save(transacao);
 
             log.info("transacao atualizada com sucesso");
@@ -85,6 +92,25 @@ public class TransacaoService {
         }
     }
 
+    public ResponseEntity<Transacao> processaEstorno(@PathVariable Long id){
+        try{
+            log.info("Buscando transacao para estorno");
+            Transacao transacao = transacaoRepository.findById(id).orElse(null);
+            if (transacao == null) {
+                log.info("Transacao nao encontrada");
+                return ResponseEntity.notFound().build();
+            }else {
+                processaEstorno(transacao);
+                transacaoRepository.save(transacao);
+                log.info("Estorno processado com sucesso");
+                return ResponseEntity.ok(transacao);
+            }
+        } catch (Exception e) {
+            log.error("Ocorreu um erro ao tentar processar estorno. Erro:" + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
     public ResponseEntity<Void> deleteTransacao(@PathVariable Long id) {
         if(transacaoRepository.existsById(id)) {
             transacaoRepository.deleteById(id);
@@ -92,5 +118,55 @@ public class TransacaoService {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private void processaPagamento(Transacao transacao) {
+        Descricao descricao = transacao.getDescricao();
+        descricao.setCodigoAutorizacao(geraCodigoAutorizacao());
+        descricao.setNsu(geraCodigoNsu());
+
+        if (null == transacao.getDescricao().getEstabelecimento()){
+            descricao.setStatus(Status.NEGADO.name());
+        }else {
+            descricao.setStatus(Status.AUTORIZADO.name());
+        }
+        transacao.setCartao(mascaraNumeroCartao(transacao.getCartao()));
+    }
+
+    private void processaEstorno(Transacao transacao) {
+        transacao.getDescricao().setStatus(Status.CANCELADO.name());
+    }
+
+    private String geraCodigoAutorizacao(){
+        Random random = new Random();
+        long codigoAutorizacao = 1000000000L + (long)(random.nextDouble() * 9000000000L);
+        return String.valueOf(codigoAutorizacao);
+    }
+
+    private String geraCodigoNsu(){
+        Random random = new Random();
+        long codigoAutorizacao = 1000000000L + (long)(random.nextDouble() * 9000000000L);
+        return String.valueOf(codigoAutorizacao);
+    }
+
+    private void atualizaDescricao(Descricao descricaoExistente, Descricao descricaoAtualizada) {
+        descricaoExistente.setValor(descricaoAtualizada.getValor());
+        descricaoExistente.setDataHora(descricaoAtualizada.getDataHora());
+        descricaoExistente.setEstabelecimento(descricaoAtualizada.getEstabelecimento());
+        descricaoExistente.setNsu(descricaoAtualizada.getNsu());
+        descricaoExistente.setCodigoAutorizacao(descricaoAtualizada.getCodigoAutorizacao());
+        descricaoExistente.setStatus(descricaoAtualizada.getStatus());
+    }
+
+    private void atualizaFormaPagamento(FormaPagamento formaExistente, FormaPagamento formaAtualizada) {
+        formaExistente.setTipo(formaAtualizada.getTipo());
+        formaExistente.setParcelas(formaAtualizada.getParcelas());
+    }
+
+    public static String mascaraNumeroCartao(String cartao) {
+        String primeirosDigitos = cartao.substring(0, 4);
+        String ultomosDigitos = cartao.substring(cartao.length() - 4);
+        String meioMascarado = "*".repeat(cartao.length() - 8);
+        return primeirosDigitos + meioMascarado + ultomosDigitos;
     }
 }
