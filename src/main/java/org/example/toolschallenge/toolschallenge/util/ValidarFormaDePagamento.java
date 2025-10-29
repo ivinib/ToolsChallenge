@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 
-public class ValidacaoDaFormaDePagamento implements ConstraintValidator<FormaPagamentoValida, FormaPagamento> {
+public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamentoValida, FormaPagamento> {
 
     @Override
     public boolean isValid(FormaPagamento pagamento, ConstraintValidatorContext constraintValidatorContext) {
@@ -39,6 +39,15 @@ public class ValidacaoDaFormaDePagamento implements ConstraintValidator<FormaPag
                     .addConstraintViolation();
             return false;
         }
+
+        if ((pagamento.getTipo().equals(TipoPagamento.PARCELADO_LOJA.name()) || pagamento.getTipo().equals(TipoPagamento.PARCELADO_EMISSOR.name()) ) && pagamento.getParcelas().equals("1")){
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("O número de parcelas não pode ser 1 quando o tipo de pagamento é PARCELADO ")
+                    .addPropertyNode("parcelas")
+                    .addConstraintViolation();
+            return false;
+        }
+
         return true;
     }
 }

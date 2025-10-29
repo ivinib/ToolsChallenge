@@ -6,7 +6,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = ValidacaoDaFormaDePagamento.class)
+@Constraint(validatedBy = ValidarFormaDePagamento.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FormaPagamentoValida {

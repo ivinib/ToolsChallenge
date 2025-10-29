@@ -1,7 +1,11 @@
 package org.example.toolschallenge.toolschallenge.service;
 
+import org.example.toolschallenge.toolschallenge.model.Descricao;
+import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
 import org.example.toolschallenge.toolschallenge.repository.TransacaoRepository;
+import org.example.toolschallenge.toolschallenge.util.Status;
+import org.example.toolschallenge.toolschallenge.util.TipoPagamento;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -21,12 +25,23 @@ class TransacaoServiceTest {
 
     private Transacao transacao;
 
+    private static final String MENSAGEM_ERRO = "Ocorreu um erro ao tentar salvar a transacao. Erro:";
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         transacao = new Transacao();
         transacao.setIdTransacao(1L);
         transacao.setCartao("1234567890123");
+
+        Descricao descricao = new Descricao();
+        descricao.setEstabelecimento("Mercado");
+        descricao.setValor("50.70");
+        transacao.setDescricao(descricao);
+
+        FormaPagamento formaPagamento = new FormaPagamento();
+        formaPagamento.setTipo(TipoPagamento.PARCELADO_LOJA.name());
+        formaPagamento.setParcelas("4");
+        transacao.setFormaPagamento(formaPagamento);
     }
 
     @Test
@@ -38,6 +53,10 @@ class TransacaoServiceTest {
         assertEquals(200, response.getStatusCode().value());
         assertEquals(transacao, response.getBody());
         verify(transacaoRepository).save(transacao);
+        assertEquals(Status.AUTORIZADO.name(), response.getBody().getDescricao().getStatus());
+        assertEquals("1234*****0123", transacao.getCartao());
+        assertNotNull(response.getBody().getDescricao().getNsu());
+        assertNotNull(response.getBody().getDescricao().getCodigoAutorizacao());
     }
 
     @Test
@@ -74,6 +93,17 @@ class TransacaoServiceTest {
         Transacao atualizada = new Transacao();
         atualizada.setCartao("9999999999999");
 
+        Descricao descricaoAtualizada = new Descricao();
+        descricaoAtualizada.setEstabelecimento("Mercado");
+        descricaoAtualizada.setValor("54.78");
+        descricaoAtualizada.setStatus(Status.AUTORIZADO.name());
+        atualizada.setDescricao(descricaoAtualizada);
+
+        FormaPagamento formaPagamentoAtualizada = new FormaPagamento();
+        formaPagamentoAtualizada.setTipo(TipoPagamento.PARCELADO_LOJA.name());
+        formaPagamentoAtualizada.setParcelas("4");
+        atualizada.setFormaPagamento(formaPagamentoAtualizada);
+
         when(transacaoRepository.findById(1L)).thenReturn(Optional.of(transacao));
         when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacao);
 
@@ -81,7 +111,7 @@ class TransacaoServiceTest {
 
         assertEquals(200, response.getStatusCode().value());
         verify(transacaoRepository).save(transacao);
-        assertEquals("9999999999999", transacao.getCartao());
+        assertEquals("9999*****9999", transacao.getCartao());
     }
 
     @Test
@@ -101,6 +131,34 @@ class TransacaoServiceTest {
         ResponseEntity<Void> response = transacaoService.deleteTransacao(1L);
 
         assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testProcessaTransacaoSemEstabelecimento() {
+        transacao.getDescricao().setEstabelecimento(null);
+        when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacao);
+
+        ResponseEntity<Transacao> response = transacaoService.salvaTransacao(transacao);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(transacao, response.getBody());
+        verify(transacaoRepository).save(transacao);
+        assertEquals(Status.NEGADO.name(), response.getBody().getDescricao().getStatus());
+        assertNotNull(response.getBody().getDescricao().getNsu());
+        assertNotNull(response.getBody().getDescricao().getCodigoAutorizacao());
+    }
+
+    @Test
+    void testProcessaEstorno() {
+
+        when(transacaoRepository.findById(1L)).thenReturn(Optional.of(transacao));
+        when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacao);
+
+        ResponseEntity<Transacao> response = transacaoService.processaEstorno(1L);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(transacaoRepository).save(transacao);
+        assertEquals(Status.CANCELADO.name(), response.getBody().getDescricao().getStatus());
     }
 
 }

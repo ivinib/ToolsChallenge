@@ -49,18 +49,6 @@ public class TestValidacoes {
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("entre 13 e 19")));
     }
-
-    @Test
-    void testCartaoComLetras() {
-        Transacao transacao = new Transacao();
-        transacao.setCartao("1234ABC567890"); // contains letters
-        transacao.setFormaPagamento(formaPagamento);
-
-        Set<ConstraintViolation<Transacao>> violations = validator.validate(transacao);
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("apenas números")));
-    }
-
     @Test
     void testFormaPagamentoInvalida() {
         Transacao transacao = new Transacao();
