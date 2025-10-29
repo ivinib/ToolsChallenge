@@ -1,5 +1,6 @@
 # ToolsChallenge
 
+###Introdução
 Projeto implementando uma API de Pagamentos.
 Tecnologias utilizadas nesse projeto:
 Java 21
@@ -9,7 +10,8 @@ Maven
 H2
 
 Rodando localmente o endereço da applicação é: localhost:8080
-Endpoints usados para as requisições:
+
+###Endpoints
 POST /transacao: Salva a transacao/processa o pagamento
 GET /transacao: Busca por todas as transações salvas no banco de dados
 GET /transacao/id: Busca uma transação especifica pelo id
