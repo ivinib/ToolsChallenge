@@ -1,8 +1,10 @@
 package org.example.toolschallenge.toolschallenge.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import org.example.toolschallenge.toolschallenge.util.ValorValido;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity(name = "tb_descricao")
 public class Descricao {
@@ -12,16 +14,18 @@ public class Descricao {
     private Long idDescricao;
 
     @Column(name = "valor")
-    private Double valor;
+    @ValorValido
+    private String valor;
 
     @Column(name = "data_hora")
-    private Date dataHora;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy H:m:s")
+    private LocalDateTime dataHora;
 
     @Column(name = "estabelecimento")
     private String estabelecimento;
 
     @Column(name = "nsu")
-    private Long nsu;
+    private String nsu;
 
     @Column(name = "codigo_autorizacao")
     private String codigoAutorizacao;
@@ -37,19 +41,19 @@ public class Descricao {
         this.idDescricao = idDescricao;
     }
 
-    public Double getValor() {
+    public String getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(String valor) {
         this.valor = valor;
     }
 
-    public Date getDataHora() {
+    public LocalDateTime getDataHora() {
         return dataHora;
     }
 
-    public void setDataHora(Date dataHora) {
+    public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
 
@@ -61,11 +65,11 @@ public class Descricao {
         this.estabelecimento = estabelecimento;
     }
 
-    public Long getNsu() {
+    public String getNsu() {
         return nsu;
     }
 
-    public void setNsu(Long nsu) {
+    public void setNsu(String nsu) {
         this.nsu = nsu;
     }
 
