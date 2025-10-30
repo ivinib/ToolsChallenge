@@ -25,7 +25,7 @@ public class TransacaoService {
         this.transacaoRepository = transacaoRepository;
     }
 
-    public ResponseEntity<Transacao> salvaTransacao( @RequestBody Transacao transacao) {
+    public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
 
         processaPagamento(transacao);
         try{

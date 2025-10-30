@@ -2,6 +2,8 @@ package org.example.toolschallenge.toolschallenge.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import org.example.toolschallenge.toolschallenge.util.ValorValido;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,8 @@ public class Descricao {
 
     @Column(name = "data_hora")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy H:m:s")
+    @PastOrPresent(message = "Não pode estar do futuro")
+    @NotNull(message = "Data deve ser preenchida")
     private LocalDateTime dataHora;
 
     @Column(name = "estabelecimento")

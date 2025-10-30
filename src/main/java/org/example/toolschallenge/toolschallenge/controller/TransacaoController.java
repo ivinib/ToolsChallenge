@@ -26,7 +26,7 @@ public class TransacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Transacao> salvaTransacao(@RequestBody Transacao transacao) {
+    public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
         return transacaoService.salvaTransacao(transacao);
     }
 

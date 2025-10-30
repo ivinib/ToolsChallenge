@@ -15,13 +15,21 @@ public class TratamentoDeExcecoes {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> trataConstraintValidationException(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation -> {
-            String field = violation.getPropertyPath().toString();
-            String message = violation.getMessage();
-            errors.put(field, message);
+        Map<String, String> erros = new HashMap<>();
+        ex.getConstraintViolations().forEach(violacao -> {
+            String campo = violacao.getPropertyPath().toString();
+            String mensagem = violacao.getMessage();
+            erros.put(campo, mensagem);
         });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
+    }
 
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> trataMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> erros = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(violacao -> {
+            erros.put(violacao.getField(), violacao.getDefaultMessage());
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 }
