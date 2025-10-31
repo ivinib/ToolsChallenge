@@ -8,6 +8,8 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
 
     @Override
     public boolean isValid(FormaPagamento pagamento, ConstraintValidatorContext constraintValidatorContext) {
+
+        //Valida se o campo de pagamento da requisição não é nulo
         if (pagamento == null){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("A forma de pagamento deve ser preenchida")
@@ -16,6 +18,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida se o campo do tipo de pagamento da requisição não é nulo
         if (pagamento.getTipo() == null || pagamento.getTipo().isEmpty()){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O tipo do pagamento deve ser preenchido")
@@ -24,6 +27,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida se o campo de parcelas da requisição não é nulo
         if (pagamento.getParcelas() == null || pagamento.getParcelas().isEmpty()){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O número de parcelas deve ser preenchido")
@@ -32,6 +36,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida se o tipo do pagamento é algum tipo aceito
         if (!pagamento.getTipo().toUpperCase().equals(TipoPagamento.AVISTA.name()) &&
             !pagamento.getTipo().toUpperCase().equals(TipoPagamento.PARCELADO_EMISSOR.name())  &&
             !pagamento.getTipo().toUpperCase().equals(TipoPagamento.PARCELADO_LOJA.name()) ){
@@ -43,6 +48,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida as parcelas se é um número maior que zero e no maximo 2 digitos
         if (!pagamento.getParcelas().matches("^[1-9]\\d?$")){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O campo parcelas deve ser um número maior que 0 de no maximo 2 digitos")
@@ -51,6 +57,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida que não pode ser parcela maior que 1 quando o pagamento é a vista
         if (pagamento.getTipo().toUpperCase().equals(TipoPagamento.AVISTA.name()) && !pagamento.getParcelas().equals("1")){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O número de parcelas deve ser 1 quando o tipo de pagamento é AVISTA")
@@ -59,6 +66,7 @@ public class ValidarFormaDePagamento implements ConstraintValidator<FormaPagamen
             return false;
         }
 
+        //Valida que nao pode ser parcela igual a 1 quando o pagamento é parcelado
         if ((pagamento.getTipo().toUpperCase().equals(TipoPagamento.PARCELADO_LOJA.name()) || pagamento.getTipo().toUpperCase().equals(TipoPagamento.PARCELADO_EMISSOR.name()) ) && pagamento.getParcelas().equals("1")){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O número de parcelas não pode ser 1 quando o tipo de pagamento é PARCELADO")

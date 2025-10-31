@@ -11,7 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Random;
@@ -26,6 +27,7 @@ public class TransacaoService {
         this.transacaoRepository = transacaoRepository;
     }
 
+    //Metodo que valida e salva a transação no banco de dados
     public ResponseEntity<Transacao> salvaTransacao(@Valid @RequestBody Transacao transacao) {
 
         processaPagamento(transacao);
@@ -39,6 +41,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que busca todas as transações salvas no banco de dados
     public ResponseEntity<List<Transacao>> listarTodasTransacoes() {
         try{
             log.info("Buscando todas as transacoes");
@@ -56,6 +59,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que busca uma transação especifica no banco pelo id
     public ResponseEntity<Transacao> buscaTransacao(@PathVariable Long id) {
         try{
             log.info("Buscando transacao com id {}", id);
@@ -71,6 +75,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que atualiza uma transação e salva no banco de dados
     public ResponseEntity<Transacao> atualizaTransacao(@PathVariable Long id, @Valid @RequestBody Transacao transacaoAtualizada) {
         try{
             log.info("Buscando transacao para ser atualizada");
@@ -93,6 +98,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que processa o estorno de uma transação
     public ResponseEntity<Transacao> processaEstorno(@PathVariable Long id){
         try{
             log.info("Buscando transacao para estorno");
@@ -112,6 +118,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que deleta uma transação do bando buscando pelo id
     public ResponseEntity<Void> deleteTransacao(@PathVariable Long id) {
         if(transacaoRepository.existsById(id)) {
             transacaoRepository.deleteById(id);
@@ -121,6 +128,7 @@ public class TransacaoService {
         }
     }
 
+    //Metodo que é chamado antes de salvar a transação para validar e gerar as informações
     private void processaPagamento(Transacao transacao) {
         Descricao descricao = transacao.getDescricao();
         descricao.setCodigoAutorizacao(geraCodigo());
@@ -134,16 +142,19 @@ public class TransacaoService {
         transacao.setCartao(mascaraNumeroCartao(transacao.getCartao()));
     }
 
+    //Metodo processa o estorno
     private void processaEstorno(Transacao transacao) {
         transacao.getDescricao().setStatus(Status.CANCELADO.name());
     }
 
+    //Metodo que é chamado no processaPagamento() e gera os codigos de autorização e nsu
     private String geraCodigo(){
         Random random = new Random();
         long codigoAutorizacao = 1000000000L + (long)(random.nextDouble() * 9000000000L);
         return String.valueOf(codigoAutorizacao);
     }
 
+    //Metodo auxiliar para atualizar os campos da descrição no processo de atualizar uma transação
     private void atualizaDescricao(Descricao descricaoExistente, Descricao descricaoAtualizada) {
         descricaoExistente.setValor(descricaoAtualizada.getValor());
         descricaoExistente.setDataHora(descricaoAtualizada.getDataHora());
@@ -153,11 +164,13 @@ public class TransacaoService {
         descricaoExistente.setStatus(descricaoAtualizada.getStatus());
     }
 
+    //Metodo auxiliar para atualizar os campos da forma de pagamento no processo de atualizar uma transação
     private void atualizaFormaPagamento(FormaPagamento formaExistente, FormaPagamento formaAtualizada) {
         formaExistente.setTipo(formaAtualizada.getTipo());
         formaExistente.setParcelas(formaAtualizada.getParcelas());
     }
 
+    //Metodo que mascara o número do cartão antes de salvar no banco de dados
     private static String mascaraNumeroCartao(String cartao) {
         if (cartao == null || cartao.length() < 13){
             throw new CampoInvalidoException("cartao", "O número do cartão deve conter no minimo 13 digitos");

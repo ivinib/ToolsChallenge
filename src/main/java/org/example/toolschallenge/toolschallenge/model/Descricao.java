@@ -1,7 +1,11 @@
 package org.example.toolschallenge.toolschallenge.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import org.example.toolschallenge.toolschallenge.exception.CampoInvalidoException;
@@ -96,6 +100,7 @@ public class Descricao {
         this.status = status;
     }
 
+    //Conversor de data que recebe o valor em String e devolve em LocalDateTime
     public static LocalDateTime convertDate(String date){
         try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");

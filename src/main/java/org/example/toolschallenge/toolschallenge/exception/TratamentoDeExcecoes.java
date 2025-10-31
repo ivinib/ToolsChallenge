@@ -13,8 +13,10 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class TratamentoDeExcecoes {
+    //Classe criada para tratar exceções e devolver uma mensagem de erro formatada e não o stack trace
 
     @ExceptionHandler(ConstraintViolationException.class)
+    //Metodo para tratar excecoes de ConstraintViolation e devolver uma mensagem de erro formatada
     public ResponseEntity<Map<String, String>> trataConstraintValidationException(ConstraintViolationException ex) {
         Map<String, String> erros = new HashMap<>();
         ex.getConstraintViolations().forEach(violacao -> {
@@ -25,6 +27,7 @@ public class TratamentoDeExcecoes {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
+    //Metodo para tratar excecoes de MethodArgumentNotValidation e devolver uma mensagem de erro formatada
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> trataMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> erros = new HashMap<>();
@@ -34,6 +37,7 @@ public class TratamentoDeExcecoes {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
+    //Metodo para tratar as excecoes customizadas de CampoInvalido e devolver uma mensagem de erro formatada
     @ExceptionHandler(CampoInvalidoException.class)
     public ResponseEntity<Map<String, String>> trataCartaoInvalidoException(CampoInvalidoException ex) {
         Map<String, String> erros = new HashMap<>();
@@ -41,6 +45,7 @@ public class TratamentoDeExcecoes {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
+    //Metodo para tratar excecoes de HttpMessageNotReadable e devolver uma mensagem de erro formatada
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> trataHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         Map<String, String> erros = new HashMap<>();

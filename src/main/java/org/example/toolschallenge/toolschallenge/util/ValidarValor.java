@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class ValidarValor implements ConstraintValidator<ValorValido, String> {
     @Override
     public boolean isValid(String valor, ConstraintValidatorContext constraintValidatorContext) {
+        //Valida se o valor não é nulo
         if (valor == null || valor.isEmpty()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("O valor deve ser preencido")
@@ -16,6 +17,7 @@ public class ValidarValor implements ConstraintValidator<ValorValido, String> {
             return false;
         }
 
+        //Valida se o valor é um decimal valido
         if (!valor.matches("\\d+(\\.\\d{1,2})?")){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("Valor invalido")
