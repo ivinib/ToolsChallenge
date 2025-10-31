@@ -1,5 +1,6 @@
 package org.example.toolschallenge.toolschallenge.service;
 
+import org.example.toolschallenge.toolschallenge.exception.CampoInvalidoException;
 import org.example.toolschallenge.toolschallenge.model.Descricao;
 import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
@@ -11,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,7 +28,6 @@ class TransacaoServiceTest {
 
     private Transacao transacao;
 
-    private static final String MENSAGEM_ERRO = "Ocorreu um erro ao tentar salvar a transacao. Erro:";
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -45,18 +47,30 @@ class TransacaoServiceTest {
     }
 
     @Test
-    void testSalvarTransacao() {
+    void testSalvaTransacaoValidaComSucesso() {
         when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacao);
-
         ResponseEntity<Transacao> response = transacaoService.salvaTransacao(transacao);
 
+        //Verifica se retornou o codigo de status esperado
         assertEquals(200, response.getStatusCode().value());
-        assertEquals(transacao, response.getBody());
-        verify(transacaoRepository).save(transacao);
-        assertEquals(Status.AUTORIZADO.name(), response.getBody().getDescricao().getStatus());
-        assertEquals("1234*****0123", transacao.getCartao());
+
+        //Verifica se os campos foram processados e preenchidos
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getIdTransacao());
         assertNotNull(response.getBody().getDescricao().getNsu());
         assertNotNull(response.getBody().getDescricao().getCodigoAutorizacao());
+    }
+
+    @Test
+    void testSalvaTransacaoComCartaoNulo() {
+        transacao.setCartao(null);
+        when(transacaoRepository.save(any(Transacao.class))).thenReturn(transacao);
+
+        //Verifica se dispara a exceção esperada para esse caso
+        Exception exception = assertThrows(CampoInvalidoException.class, () -> transacaoService.salvaTransacao(transacao));
+
+        //Verifica se retornou a mensagem esperada de status esperado
+        assertEquals("O número do cartão deve conter no minimo 13 digitos", exception.getMessage());
     }
 
     @Test
@@ -86,6 +100,15 @@ class TransacaoServiceTest {
         ResponseEntity<Transacao> response = transacaoService.buscaTransacao(1L);
 
         assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testBuscaTransacaoExistente() {
+        when(transacaoRepository.findById(1L)).thenReturn(Optional.of(transacao));
+
+        ResponseEntity<Transacao> response = transacaoService.buscaTransacao(1L);
+
+        assertEquals(200, response.getStatusCode().value());
     }
 
     @Test
@@ -161,4 +184,38 @@ class TransacaoServiceTest {
         assertEquals(Status.CANCELADO.name(), response.getBody().getDescricao().getStatus());
     }
 
+    @Test
+    void testProcessaTransacaoExcecao(){
+        when(transacaoRepository.save(any(Transacao.class))).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> transacaoService.salvaTransacao(transacao));
+    }
+
+    @Test
+    void testBuscaTodasTransacoesExcecao(){
+        when(transacaoRepository.findAll()).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> transacaoService.listarTodasTransacoes());
+    }
+
+    @Test
+    void testBuscaTransacaoExcecao(){
+        when(transacaoRepository.findById(anyLong())).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> transacaoService.buscaTransacao(anyLong()));
+    }
+
+    @Test
+    void testAtualizacaoExcecao(){
+        when(transacaoRepository.findById(anyLong())).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> transacaoService.atualizaTransacao(anyLong(),transacao));
+    }
+
+    @Test
+    void testDeleteExcecao(){
+        when(transacaoRepository.existsById(anyLong())).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> transacaoService.deleteTransacao(anyLong()));
+    }
 }

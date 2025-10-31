@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,8 +31,8 @@ class TransacaoControllerTest {
         String json = """
         {
             "cartao": "1234567890123",
-            "descricao": { "valor": 100.0 },
-            "formaPagamento": { "tipo": "AVISTA", "parcelas": 1 }
+            "descricao": { "valor": "123.45", "dataHora": "31/10/2025 12:00:00" },
+            "formaPagamento": { "tipo": "AVISTA", "parcelas": "1" }
         }
         """;
 
@@ -70,7 +71,7 @@ class TransacaoControllerTest {
         String json = """
         {
             "cartao": "1234567890123",
-            "descricao": { "valor": 100.0 },
+            "descricao": { "valor": "123.45", "dataHora": "31/10/2025 12:00:00" },
             "formaPagamento": { "tipo": "AVISTA", "parcelas": 1 }
         }
         """;
