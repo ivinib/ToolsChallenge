@@ -1,6 +1,7 @@
 package org.example.toolschallenge.toolschallenge.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.toolschallenge.toolschallenge.util.FormaPagamentoValida;
@@ -18,8 +19,10 @@ public class Transacao {
     @NotNull(message = "O número do cartão deve ser preenchido")
     private String cartao;
 
+    @Valid
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_descricao", referencedColumnName = "id_descricao")
+    @NotNull(message = "A descrição é obrigatoria")
     private Descricao descricao;
 
     @OneToOne(cascade = CascadeType.ALL)

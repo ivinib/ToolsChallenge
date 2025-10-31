@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import org.example.toolschallenge.toolschallenge.exception.CampoInvalidoException;
 import org.example.toolschallenge.toolschallenge.util.ValorValido;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Entity(name = "tb_descricao")
 public class Descricao {
@@ -20,7 +23,7 @@ public class Descricao {
     private String valor;
 
     @Column(name = "data_hora")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy H:m:s")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
     @PastOrPresent(message = "Não pode estar do futuro")
     @NotNull(message = "Data deve ser preenchida")
     private LocalDateTime dataHora;
@@ -91,5 +94,14 @@ public class Descricao {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public static LocalDateTime convertDate(String date){
+        try{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            return LocalDateTime.parse(date, formatter);
+        }catch (DateTimeParseException ex){
+            throw new CampoInvalidoException("dataHora", "Formato inválido, use 'dd/mm/aaaa hh:mm:ss");
+        }
     }
 }

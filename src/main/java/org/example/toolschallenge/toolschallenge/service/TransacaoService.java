@@ -1,6 +1,7 @@
 package org.example.toolschallenge.toolschallenge.service;
 
 import jakarta.validation.Valid;
+import org.example.toolschallenge.toolschallenge.exception.CampoInvalidoException;
 import org.example.toolschallenge.toolschallenge.model.Descricao;
 import org.example.toolschallenge.toolschallenge.model.FormaPagamento;
 import org.example.toolschallenge.toolschallenge.model.Transacao;
@@ -34,7 +35,7 @@ public class TransacaoService {
             return ResponseEntity.ok(transacaoSalva);
         } catch (Exception e) {
             log.error("Ocorreu um erro ao tentar salvar a transacao. Erro:" + e.getMessage());
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -122,8 +123,8 @@ public class TransacaoService {
 
     private void processaPagamento(Transacao transacao) {
         Descricao descricao = transacao.getDescricao();
-        descricao.setCodigoAutorizacao(geraCodigoAutorizacao());
-        descricao.setNsu(geraCodigoNsu());
+        descricao.setCodigoAutorizacao(geraCodigo());
+        descricao.setNsu(geraCodigo());
 
         if (null == transacao.getDescricao().getEstabelecimento()){
             descricao.setStatus(Status.NEGADO.name());
@@ -137,13 +138,7 @@ public class TransacaoService {
         transacao.getDescricao().setStatus(Status.CANCELADO.name());
     }
 
-    private String geraCodigoAutorizacao(){
-        Random random = new Random();
-        long codigoAutorizacao = 1000000000L + (long)(random.nextDouble() * 9000000000L);
-        return String.valueOf(codigoAutorizacao);
-    }
-
-    private String geraCodigoNsu(){
+    private String geraCodigo(){
         Random random = new Random();
         long codigoAutorizacao = 1000000000L + (long)(random.nextDouble() * 9000000000L);
         return String.valueOf(codigoAutorizacao);
@@ -163,7 +158,10 @@ public class TransacaoService {
         formaExistente.setParcelas(formaAtualizada.getParcelas());
     }
 
-    public static String mascaraNumeroCartao(String cartao) {
+    private static String mascaraNumeroCartao(String cartao) {
+        if (cartao == null || cartao.length() < 13){
+            throw new CampoInvalidoException("cartao", "O número do cartão deve conter no minimo 13 digitos");
+        }
         String primeirosDigitos = cartao.substring(0, 4);
         String ultomosDigitos = cartao.substring(cartao.length() - 4);
         String meioMascarado = "*".repeat(cartao.length() - 8);

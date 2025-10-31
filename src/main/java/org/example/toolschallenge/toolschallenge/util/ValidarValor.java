@@ -8,7 +8,13 @@ import java.math.BigDecimal;
 public class ValidarValor implements ConstraintValidator<ValorValido, String> {
     @Override
     public boolean isValid(String valor, ConstraintValidatorContext constraintValidatorContext) {
-        if (valor == null) return false;
+        if (valor == null || valor.isEmpty()) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("O valor deve ser preencido")
+                    .addPropertyNode("valor")
+                    .addConstraintViolation();
+            return false;
+        }
 
         if (!valor.matches("\\d+(\\.\\d{1,2})?")){
             constraintValidatorContext.disableDefaultConstraintViolation();
